@@ -2,7 +2,10 @@ package com.woolta.blog.domain;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -13,26 +16,16 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-@Table(name = "board")
-public class Board {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    private String title;
-    private String contents;
-    private String subDescription;
-
-    @OneToOne
-    @JoinColumn(name = "user_no")
-    private User user;
-
-    @OneToOne
-    @JoinColumn(name = "category_no")
-    private BoardCategory category;
-
-
+    private int no;
+    private String userId;
+    private String userName;
+    private String nickName;
+    private String email;
+    private String pwd;
 
     @Column(updatable = false)
     private ZonedDateTime createdAt;
@@ -49,6 +42,5 @@ public class Board {
     private void preUpdate() {
         updatedAt = ZonedDateTime.now();
     }
-
 
 }
