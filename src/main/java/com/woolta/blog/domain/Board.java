@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 @Table(name = "board")
 public class Board {
 
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

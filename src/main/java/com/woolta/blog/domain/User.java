@@ -31,6 +31,9 @@ public class User {
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
+    public User(int no) {
+        this.no = no;
+    }
 
     @PrePersist
     private void prePersist() {
