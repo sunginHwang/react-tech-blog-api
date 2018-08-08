@@ -2,6 +2,8 @@ package com.woolta.blog.controller;
 
 import com.woolta.blog.domain.Board;
 import com.woolta.blog.domain.BoardCategory;
+import com.woolta.blog.domain.response.Response;
+import com.woolta.blog.domain.response.ResponseCode;
 import com.woolta.blog.service.BoardService;
 import com.woolta.blog.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -19,37 +21,37 @@ public class PostController {
     private final CategoryService categoryService;
 
     @PostMapping("")
-    public String upsertPost(@RequestBody PostDto.UpsertReq req){
+    public Response upsertPost(@RequestBody PostDto.UpsertReq req) {
         boardService.upsertPost(req);
-        return "success";
+        return new Response<>(ResponseCode.SUCCESS, "success upsert post");
     }
 
     @GetMapping("/categories/{categoryNo:[\\d]+}/posts")
-    public List<Board> getPostByCategory(@PathVariable Integer categoryNo){
-        return boardService.findPostByCategoryNo(categoryNo);
+    public Response<List<Board>> getPostByCategory(@PathVariable Integer categoryNo) {
+        List<Board> boards = boardService.findPostByCategoryNo(categoryNo);
+        return new Response<>(ResponseCode.SUCCESS, boards);
     }
-
 
 
     @GetMapping("/categories/{categoryNo:[\\d]+}/posts/{postNo:[\\d]+}")
-    public Board getPost( @PathVariable Integer categoryNo,
-     @PathVariable Integer postNo){
-        return boardService.findPostByNo(categoryNo ,postNo);
+    public Response<Board> getPost(@PathVariable Integer categoryNo,
+                                   @PathVariable Integer postNo) {
+        Board board = boardService.findPostByNo(categoryNo, postNo);
+        return new Response<>(ResponseCode.SUCCESS, board);
     }
-
 
 
     @DeleteMapping("/categories/{categoryNo:[\\d]+}/posts/{postNo:[\\d]+}")
-    public String removePost(@PathVariable Integer categoryNo,
-                              @PathVariable Integer postNo){
+    public Response removePost(@PathVariable Integer categoryNo,
+                               @PathVariable Integer postNo) {
         boardService.removePost(categoryNo, postNo);
-        return "success";
+        return new Response<>(ResponseCode.SUCCESS, "success remove post");
     }
 
 
-
     @GetMapping("/categories")
-    public List<BoardCategory> getCategories( ){
-        return categoryService.getBoardCategories();
+    public Response<List<BoardCategory>> getCategories() {
+        List<BoardCategory> boardCategories = categoryService.getBoardCategories();
+        return new Response<>(ResponseCode.SUCCESS, boardCategories);
     }
 }
