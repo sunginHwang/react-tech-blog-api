@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Slf4j
 @ControllerAdvice
 public class CommonExceptionHandler {
-    
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -26,6 +26,14 @@ public class CommonExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public Response handleDataAccessException(DataAccessException e) {
+        log.error("{}", e);
+        return new Response<>(ResponseCode.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public Response handleNotFoundException(NotFoundException e) {
         log.error("{}", e);
         return new Response<>(ResponseCode.NOT_FOUND, e.getMessage());
     }
