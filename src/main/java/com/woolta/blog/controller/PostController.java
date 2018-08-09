@@ -4,7 +4,7 @@ import com.woolta.blog.domain.Board;
 import com.woolta.blog.domain.BoardCategory;
 import com.woolta.blog.domain.response.Response;
 import com.woolta.blog.domain.response.ResponseCode;
-import com.woolta.blog.service.BoardService;
+import com.woolta.blog.service.PostService;
 import com.woolta.blog.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,19 +16,19 @@ import java.util.List;
 @RequestMapping("/post")
 public class PostController {
 
-    private final BoardService boardService;
+    private final PostService postService;
 
     private final CategoryService categoryService;
 
     @PostMapping("")
     public Response upsertPost(@RequestBody PostDto.UpsertReq req) {
-        boardService.upsertPost(req);
+        postService.upsertPost(req);
         return new Response<>(ResponseCode.SUCCESS, "success upsert post");
     }
 
     @GetMapping("/categories/{categoryNo:[\\d]+}/posts")
     public Response<List<Board>> getPostByCategory(@PathVariable Integer categoryNo) {
-        List<Board> boards = boardService.findPostByCategoryNo(categoryNo);
+        List<Board> boards = postService.findPostByCategoryNo(categoryNo);
         return new Response<>(ResponseCode.SUCCESS, boards);
     }
 
@@ -36,7 +36,7 @@ public class PostController {
     @GetMapping("/categories/{categoryNo:[\\d]+}/posts/{postNo:[\\d]+}")
     public Response<Board> getPost(@PathVariable Integer categoryNo,
                                    @PathVariable Integer postNo) {
-        Board board = boardService.findPostByNo(categoryNo, postNo);
+        Board board = postService.findPostByNo(categoryNo, postNo);
         return new Response<>(ResponseCode.SUCCESS, board);
     }
 
@@ -44,7 +44,7 @@ public class PostController {
     @DeleteMapping("/categories/{categoryNo:[\\d]+}/posts/{postNo:[\\d]+}")
     public Response removePost(@PathVariable Integer categoryNo,
                                @PathVariable Integer postNo) {
-        boardService.removePost(categoryNo, postNo);
+        postService.removePost(categoryNo, postNo);
         return new Response<>(ResponseCode.SUCCESS, "success remove post");
     }
 

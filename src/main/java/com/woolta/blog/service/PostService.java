@@ -17,7 +17,7 @@ import java.util.Optional;
 @Service(value = "boardService")
 @Slf4j
 @RequiredArgsConstructor
-public class BoardService {
+public class PostService {
 
     private final BoardRepository boardRepository;
     private final BoardCategoryRepository boardCategoryRepository;
