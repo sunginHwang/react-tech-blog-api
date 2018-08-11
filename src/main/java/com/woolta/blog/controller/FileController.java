@@ -27,8 +27,8 @@ public class FileController {
     }
 
     @PostMapping("/upload/images")
-    public Response uploadMultipleFiles(@RequestParam("imageFiles") MultipartFile[] imageFiles) {
-        List<UploadFileResponse> uploadFileResponses = Arrays.stream(imageFiles)
+    public Response uploadMultipleFiles(@RequestParam("imageFiles") List<MultipartFile> imageFiles) {
+        List<UploadFileResponse> uploadFileResponses = imageFiles.stream()
                 .map(fileService::uploadImage)
                 .collect(Collectors.toList());
 

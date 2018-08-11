@@ -1,8 +1,9 @@
 package com.woolta.blog.controller;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 
 public class PostDto {
@@ -16,6 +17,32 @@ public class PostDto {
         private String title;
         private String contents;
         private String subDescription;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    public static class PostsRes {
+        private int postNo;
+        private String title;
+        private String subDescription;
+        private ZonedDateTime createdAt;
+        private String author;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    public static class PostRes {
+        private int postNo;
+        private String title;
+        private String content;
+        private ZonedDateTime createdAt;
+        private String author;
     }
 
 }
