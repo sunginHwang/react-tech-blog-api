@@ -2,8 +2,9 @@ package com.woolta.blog.controller;
 
 import lombok.*;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 
 public class PostDto {
@@ -12,11 +13,14 @@ public class PostDto {
     @Getter
     @Setter
     public static class UpsertReq {
+        @NotEmpty
         private int id;
+        @NotEmpty
         private int categoryNo;
+        @NotNull
         private String title;
+        @NotNull
         private String contents;
-        private String subDescription;
     }
 
     @AllArgsConstructor
@@ -28,7 +32,7 @@ public class PostDto {
         private int postNo;
         private String title;
         private String subDescription;
-        private ZonedDateTime createdAt;
+        private LocalDate createdAt;
         private String author;
     }
 
@@ -41,7 +45,7 @@ public class PostDto {
         private int postNo;
         private String title;
         private String content;
-        private ZonedDateTime createdAt;
+        private LocalDate createdAt;
         private String author;
     }
 

@@ -1,5 +1,6 @@
 package com.woolta.blog.service;
 
+import com.google.gson.Gson;
 import com.woolta.blog.controller.PostDto;
 import com.woolta.blog.domain.Board;
 import com.woolta.blog.domain.BoardCategory;
@@ -40,7 +41,7 @@ public class PostService {
                 .author(board.getUser().getNickName())
                 .content(board.getContents())
                 .title(board.getTitle())
-                .createdAt(board.getCreatedAt())
+                .createdAt(board.getCreatedAt().toLocalDate())
                 .build();
     }
 
@@ -60,7 +61,7 @@ public class PostService {
                             .author(board.getUser().getNickName())
                             .title(board.getTitle())
                             .subDescription(board.getSubDescription())
-                            .createdAt(board.getCreatedAt())
+                            .createdAt(board.getCreatedAt().toLocalDate())
                             .build()
             )
         );
@@ -70,6 +71,8 @@ public class PostService {
 
     public void upsertPost(PostDto.UpsertReq req) {
 
+        log.info("upsert Start post :{}",new Gson().toJson(req));
+
         BoardCategory boardCategory = boardCategoryRepository.findById(req.getCategoryNo())
                 .orElseThrow(() -> new NotFoundException("category is not found  categoryNo : " + req.getCategoryNo()));
 
@@ -77,9 +80,9 @@ public class PostService {
         board = Board.builder()
                 .title(req.getTitle())
                 .contents(req.getContents())
+                .subDescription(req.getContents().substring(0,5)+"간략 설명")
                 .user(new User(1))//todo auth
                 .category(boardCategory)
-                .subDescription(req.getSubDescription())
                 .build();
 
         if (req.getId() != 0) {
