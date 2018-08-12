@@ -30,7 +30,7 @@ public class PostController {
     public Response<List<PostDto.PostsRes>> getPostByCategory(@PathVariable Integer categoryNo) {
         List<PostDto.PostsRes> postRes = postService.findPostByCategoryNo(categoryNo);
 
-        return new Response<>(ResponseCode.SUCCESS,postRes);
+        return new Response<>(ResponseCode.SUCCESS, postRes);
     }
 
 
@@ -51,8 +51,8 @@ public class PostController {
 
 
     @GetMapping("/categories")
-    public Response<List<BoardCategory>> getCategories() {
-        List<BoardCategory> boardCategories = categoryService.getBoardCategories();
-        return new Response<>(ResponseCode.SUCCESS, boardCategories);
+    public Response<List<PostDto.CategoriesRes>> getCategories() {
+        List<PostDto.CategoriesRes> categoriesRes = categoryService.getBoardCategories();
+        return new Response<>(ResponseCode.SUCCESS, categoriesRes);
     }
 }

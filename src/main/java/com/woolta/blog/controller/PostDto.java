@@ -49,4 +49,14 @@ public class PostDto {
         private String author;
     }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    public static class CategoriesRes {
+        private int value;
+        private String label;
+    }
+
 }
