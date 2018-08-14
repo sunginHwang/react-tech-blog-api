@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class ImageUtil {
 
     private final String uploadPath = "/Users/hwangseong-in/dev/upload/";
-    private final String url = "http://localhost:8080";
+    private final String url = "";
 
     public UploadFileResponse uploadImage(MultipartFile file) {
 
