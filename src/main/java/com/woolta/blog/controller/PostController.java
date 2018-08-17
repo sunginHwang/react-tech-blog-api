@@ -21,9 +21,9 @@ public class PostController {
     private final CategoryService categoryService;
 
     @PostMapping("")
-    public Response upsertPost(@RequestBody PostDto.UpsertReq req) {
-        postService.upsertPost(req);
-        return new Response<>(ResponseCode.SUCCESS, "success upsert post");
+    public Response<PostDto.UpsertRes> upsertPost(@RequestBody PostDto.UpsertReq req) {
+        PostDto.UpsertRes upsertRes = postService.upsertPost(req);
+        return new Response<>(ResponseCode.SUCCESS, "success upsert post", upsertRes);
     }
 
     @GetMapping("/categories/{categoryNo:[\\d]+}/posts")

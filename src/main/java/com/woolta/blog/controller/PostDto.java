@@ -28,6 +28,16 @@ public class PostDto {
     @Getter
     @Setter
     @Builder
+    public static class UpsertRes {
+        private int postNo;
+        private int categoryNo;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Builder
     public static class PostsRes {
         private int postNo;
         private String title;

@@ -69,7 +69,7 @@ public class PostService {
         return postResList;
     }
 
-    public void upsertPost(PostDto.UpsertReq req) {
+    public PostDto.UpsertRes upsertPost(PostDto.UpsertReq req) {
 
         log.info("upsert Start post :{}",new Gson().toJson(req));
 
@@ -90,7 +90,13 @@ public class PostService {
             originBoard.ifPresent(b -> board.setId(b.getId()));
         }
 
-        boardRepository.save(board);
+        Board upsertedPost = boardRepository.save(board);
+
+        return PostDto.UpsertRes.builder()
+                .postNo(upsertedPost.getId())
+                .categoryNo(upsertedPost.getCategory().getNo())
+                .build();
+
     }
 
     public void removePost(int categoryNo, int postNo) {
