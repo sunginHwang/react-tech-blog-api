@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,7 @@ public class PostService {
                 .author(board.getUser().getNickName())
                 .content(board.getContents())
                 .title(board.getTitle())
+                .categoryLabel(board.getCategory().getCategoryName())
                 .createdAt(board.getCreatedAt().toLocalDate())
                 .build();
     }
@@ -60,6 +62,7 @@ public class PostService {
                             .postNo(board.getId())
                             .author(board.getUser().getNickName())
                             .title(board.getTitle())
+                            .categoryLabel(board.getCategory().getCategoryName())
                             .subDescription(board.getSubDescription())
                             .createdAt(board.getCreatedAt().toLocalDate())
                             .build()
@@ -108,4 +111,6 @@ public class PostService {
 
         boardRepository.delete(board);
     }
+
+
 }

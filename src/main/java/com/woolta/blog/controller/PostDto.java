@@ -42,6 +42,7 @@ public class PostDto {
         private int postNo;
         private String title;
         private String subDescription;
+        private String categoryLabel;
         private LocalDate createdAt;
         private String author;
     }
@@ -55,6 +56,7 @@ public class PostDto {
         private int postNo;
         private String title;
         private String content;
+        private String categoryLabel;
         private LocalDate createdAt;
         private String author;
     }

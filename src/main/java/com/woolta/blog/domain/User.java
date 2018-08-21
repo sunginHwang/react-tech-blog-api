@@ -25,7 +25,8 @@ public class User {
     private String userName;
     private String nickName;
     private String email;
-    private String pwd;
+    private String password;
+    private String imageUrl;
 
     @Column(updatable = false)
     private ZonedDateTime createdAt;
