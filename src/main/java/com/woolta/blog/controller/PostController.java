@@ -2,6 +2,8 @@ package com.woolta.blog.controller;
 
 import com.woolta.blog.domain.response.Response;
 import com.woolta.blog.domain.response.ResponseCode;
+import com.woolta.blog.exception.NotFoundException;
+import com.woolta.blog.exception.login.UserNotFoundException;
 import com.woolta.blog.service.PostService;
 import com.woolta.blog.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +23,16 @@ public class PostController {
 
     @PostMapping("")
     public Response<PostDto.UpsertRes> upsertPost(@RequestBody PostDto.UpsertReq req) {
-        PostDto.UpsertRes upsertRes = postService.upsertPost(req);
-        return new Response<>(ResponseCode.SUCCESS, "success upsert post", upsertRes);
+        try {
+            PostDto.UpsertRes upsertRes = postService.upsertPost(req);
+            return new Response<>(ResponseCode.SUCCESS, "success upsert post", upsertRes);
+        } catch (NotFoundException e) {
+            return new Response<>(ResponseCode.NOT_FOUND, "존재 하지 않는 항목 카테고리 입니다.");
+        } catch (UserNotFoundException e) {
+            return new Response<>(ResponseCode.UNAUTHORIZED, "존재하지 않는 사용자입니다. 다시 로그인해주세요. ");
+        }
+
+
     }
 
     @GetMapping("/categories/{categoryNo:[\\d]+}/posts")
