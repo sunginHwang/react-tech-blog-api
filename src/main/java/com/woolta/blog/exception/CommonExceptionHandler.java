@@ -2,6 +2,7 @@ package com.woolta.blog.exception;
 
 import com.woolta.blog.domain.response.Response;
 import com.woolta.blog.domain.response.ResponseCode;
+import com.woolta.blog.exception.login.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -36,5 +37,13 @@ public class CommonExceptionHandler {
     public Response handleNotFoundException(NotFoundException e) {
         log.error("{}", e);
         return new Response<>(ResponseCode.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Response handleUnauthorizedException(UnauthorizedException e) {
+        log.error("{}", e);
+        return new Response<>(ResponseCode.UNAUTHORIZED, e.getMessage());
     }
 }

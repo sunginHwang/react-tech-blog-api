@@ -5,6 +5,7 @@ public enum  ResponseCode {
     SUCCESS(200),
     ERROR_DATA_ACCESS(4000),
     NOT_FOUND(4001),
+    UNAUTHORIZED(401),
     BAD_REQUEST(4002),
     UNKNOWN_ERROR(4003);
 

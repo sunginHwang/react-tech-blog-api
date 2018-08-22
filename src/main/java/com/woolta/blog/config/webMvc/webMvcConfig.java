@@ -1,6 +1,8 @@
 package com.woolta.blog.config.webMvc;
 
+import com.woolta.blog.config.interceptor.AuthInterceptor;
 import com.woolta.blog.config.interceptor.LoggingInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -14,11 +16,19 @@ import javax.servlet.Filter;
 import java.nio.charset.Charset;
 
 @Configuration
+@RequiredArgsConstructor
 public class webMvcConfig implements WebMvcConfigurer {
+
+    private static final String[] AUTH_PATHS = {
+            "/post"
+    };
+
+    private final AuthInterceptor authInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoggingInterceptor());
+        registry.addInterceptor(authInterceptor).addPathPatterns(AUTH_PATHS);
     }
 
     @Bean
