@@ -44,6 +44,6 @@ public class CommonExceptionHandler {
     @ResponseBody
     public Response handleUnauthorizedException(UnauthorizedException e) {
         log.error("{}", e);
-        return new Response<>(ResponseCode.UNAUTHORIZED, e.getMessage());
+        return new Response<>(ResponseCode.UNAUTHORIZED, e);
     }
 }

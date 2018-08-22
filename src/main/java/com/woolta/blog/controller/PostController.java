@@ -1,6 +1,5 @@
 package com.woolta.blog.controller;
 
-import com.woolta.blog.domain.BoardCategory;
 import com.woolta.blog.domain.response.Response;
 import com.woolta.blog.domain.response.ResponseCode;
 import com.woolta.blog.service.PostService;

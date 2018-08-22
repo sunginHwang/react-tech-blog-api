@@ -13,5 +13,6 @@ public class UserDto {
     public static class LoginRes {
         private String userId;
         private String imageUrl;
+        private String authToken;
     }
 }

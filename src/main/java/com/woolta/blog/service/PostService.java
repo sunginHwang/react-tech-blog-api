@@ -2,17 +2,20 @@ package com.woolta.blog.service;
 
 import com.google.gson.Gson;
 import com.woolta.blog.controller.PostDto;
+import com.woolta.blog.domain.AuthToken;
 import com.woolta.blog.domain.Board;
 import com.woolta.blog.domain.BoardCategory;
 import com.woolta.blog.domain.User;
 import com.woolta.blog.exception.NotFoundException;
+import com.woolta.blog.exception.login.UserNotFoundException;
 import com.woolta.blog.repository.BoardCategoryRepository;
 import com.woolta.blog.repository.BoardRepository;
+import com.woolta.blog.repository.UserRepository;
+import com.woolta.blog.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,8 @@ public class PostService {
 
     private final BoardRepository boardRepository;
     private final BoardCategoryRepository boardCategoryRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
     public PostDto.PostRes findPostByNo(Integer categoryNo, Integer boardNo) {
 
@@ -79,12 +84,16 @@ public class PostService {
         BoardCategory boardCategory = boardCategoryRepository.findById(req.getCategoryNo())
                 .orElseThrow(() -> new NotFoundException("category is not found  categoryNo : " + req.getCategoryNo()));
 
+        AuthToken authInfo = jwtUtil.getAuthInfo();
+
+        User user = userRepository.findByUserId(authInfo.getUserId()).orElseThrow(UserNotFoundException::new);
+
         Board board;
         board = Board.builder()
                 .title(req.getTitle())
                 .contents(req.getContents())
                 .subDescription(req.getContents().substring(0,5)+"간략 설명")
-                .user(new User(1))//todo auth
+                .user(user)
                 .category(boardCategory)
                 .build();
 

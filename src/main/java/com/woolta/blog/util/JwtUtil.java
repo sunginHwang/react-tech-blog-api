@@ -2,6 +2,7 @@ package com.woolta.blog.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woolta.blog.controller.UserDto;
+import com.woolta.blog.domain.AuthToken;
 import com.woolta.blog.exception.login.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -19,17 +20,19 @@ import java.io.UnsupportedEncodingException;
 @Component
 public class JwtUtil {
 
-    private static final String SALT_KEY = "wooltaToken";
+    private final String SALT_KEY = "woolta";
+    private final String AUTH_KEY ="authKey";
+    private final String SUB_KEY ="subKey";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public <T> String create(String key, T data, String subject){
+    public <T> String create(T data){
 
         return Jwts.builder()
                 .setHeaderParam("typ", "JWT")
                 .setHeaderParam("regDate", System.currentTimeMillis())
-                .setSubject(subject)
-                .claim(key, data)
+                .setSubject(SUB_KEY)
+                .claim(AUTH_KEY, data)
                 .signWith(SignatureAlgorithm.HS256, this.generateKey())
                 .compact();
     }
@@ -39,9 +42,6 @@ public class JwtUtil {
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(this.generateKey())
                     .parseClaimsJws(jwt);
-            System.out.println(claims.getSignature());
-            System.out.println(claims.getBody());
-            System.out.println(claims.getHeader());
             return true;
 
         }catch (Exception e) {
@@ -50,7 +50,7 @@ public class JwtUtil {
         }
     }
 
-    public UserDto.LoginRes getAuthInfo(String key) {
+    public AuthToken getAuthInfo() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String jwt = request.getHeader("Authorization");
 
@@ -59,11 +59,13 @@ public class JwtUtil {
             claims = Jwts.parser()
                     .setSigningKey(this.generateKey())
                     .parseClaimsJws(jwt);
+
+            return objectMapper.convertValue(claims.getBody().get(AUTH_KEY),AuthToken.class);
         } catch (Exception e) {
             throw new UnauthorizedException();
         }
 
-        return objectMapper.convertValue(claims.getBody().get(key),UserDto.LoginRes.class);
+
     }
 
 
