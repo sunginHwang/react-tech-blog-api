@@ -9,11 +9,14 @@ import com.woolta.blog.exception.login.UserNotFoundException;
 import com.woolta.blog.service.UserService;
 import com.woolta.blog.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "*")
+@Slf4j
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 @RequestMapping("/user")
 public class UserController {
 
@@ -24,7 +27,7 @@ public class UserController {
     @PostMapping("/login")
     public Response<UserDto.LoginRes> login( @RequestParam(value = "id") String id,
                          @RequestParam(value = "password") String password){
-        try {
+
             User user = userService.login(id, password);
             String authToken = userService.makeAuthToken(user);
 
@@ -35,11 +38,7 @@ public class UserController {
                     .build();
 
             return new Response<>(ResponseCode.SUCCESS, loginRes);
-        }catch (UserNotFoundException e){
-            return new Response<>(ResponseCode.NOT_FOUND, "존재하지 않는 아이디 입니다.");
-        }catch (InvalidPasswordException e){
-            return new Response<>(ResponseCode.UNAUTHORIZED, "비밀번호를 확인해주세요.");
-        }
+
     }
 
     @GetMapping("/check/jwt")
@@ -50,5 +49,23 @@ public class UserController {
 
         return jwtUtil.getAuthInfo();
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Response handleUserNotFoundException(UserNotFoundException e) {
+        log.error("{}", e);
+        return new Response<>(ResponseCode.UNAUTHORIZED, "존재하지 않는 아이디 입니다.");
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Response handleInvalidPasswordException(InvalidPasswordException e) {
+        log.error("{}", e);
+        return new Response<>(ResponseCode.UNAUTHORIZED, "비밀번호를 확인해주세요.");
+    }
+
+
 
 }
