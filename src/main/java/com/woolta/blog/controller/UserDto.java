@@ -10,7 +10,8 @@ public class UserDto {
     @Builder
     @Getter
     @Setter
-    public static class LoginRes {
+    public static class UserInfoRes {
+        private int no;
         private String userId;
         private String imageUrl;
         private String authToken;

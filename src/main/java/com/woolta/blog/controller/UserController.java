@@ -25,13 +25,14 @@ public class UserController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public Response<UserDto.LoginRes> login( @RequestParam(value = "id") String id,
+    public Response<UserDto.UserInfoRes> login( @RequestParam(value = "id") String id,
                          @RequestParam(value = "password") String password){
 
             User user = userService.login(id, password);
             String authToken = userService.makeAuthToken(user);
 
-            UserDto.LoginRes loginRes = UserDto.LoginRes.builder()
+            UserDto.UserInfoRes loginRes = UserDto.UserInfoRes.builder()
+                    .no(user.getNo())
                     .userId(user.getUserId())
                     .imageUrl(user.getImageUrl())
                     .authToken(authToken)
@@ -42,12 +43,20 @@ public class UserController {
     }
 
     @GetMapping("/check/jwt")
-    public AuthToken tokenCheck(
+    public Response<UserDto.UserInfoRes> tokenCheck(
             @RequestHeader(value = "Authorization") String Authorization){
 
-        jwtUtil.isValidToken(Authorization);
+         jwtUtil.isValidToken(Authorization);
+        AuthToken authToken =jwtUtil.getAuthInfo();
 
-        return jwtUtil.getAuthInfo();
+        UserDto.UserInfoRes userInfoRes = UserDto.UserInfoRes.builder()
+                .no(authToken.getNo())
+                .userId(authToken.getUserId())
+                .imageUrl(authToken.getImageUrl())
+                .authToken(Authorization)
+                .build();
+
+        return new Response<>(ResponseCode.SUCCESS, userInfoRes);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
