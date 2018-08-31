@@ -6,6 +6,7 @@ import com.woolta.blog.domain.AuthToken;
 import com.woolta.blog.domain.Board;
 import com.woolta.blog.domain.BoardCategory;
 import com.woolta.blog.domain.User;
+import com.woolta.blog.exception.InvalidAuthorUserException;
 import com.woolta.blog.exception.NotFoundException;
 import com.woolta.blog.exception.login.UserNotFoundException;
 import com.woolta.blog.repository.BoardCategoryRepository;
@@ -100,6 +101,10 @@ public class PostService {
         if (req.getId() != 0) {
             Optional<Board> originBoard = boardRepository.findById(req.getId());
             originBoard.ifPresent(b -> board.setId(b.getId()));
+
+            if(!board.getUser().getUserId().equals(user.getUserId())){
+                throw new InvalidAuthorUserException("board author is not match");
+            }
         }
 
         Board upsertedPost = boardRepository.save(board);
@@ -117,6 +122,14 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundException("category is not found  categoryNo : " + categoryNo));
 
         Board board = boardRepository.findById(postNo).orElseThrow(RuntimeException::new);
+
+        AuthToken authInfo = jwtUtil.getAuthInfo();
+
+        User user = userRepository.findByUserId(authInfo.getUserId()).orElseThrow(UserNotFoundException::new);
+
+        if(!board.getUser().getUserId().equals(user.getUserId())){
+            throw new InvalidAuthorUserException("board author is not match");
+        }
 
         boardRepository.delete(board);
     }

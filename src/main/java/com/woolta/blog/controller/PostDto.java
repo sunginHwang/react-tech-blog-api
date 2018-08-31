@@ -23,6 +23,16 @@ public class PostDto {
         private String contents;
     }
 
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class deleteReq {
+        @NotEmpty
+        private int postNo;
+        @NotEmpty
+        private int categoryNo;
+    }
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
