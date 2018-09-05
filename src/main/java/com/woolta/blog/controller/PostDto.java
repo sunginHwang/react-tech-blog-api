@@ -1,5 +1,6 @@
 package com.woolta.blog.controller;
 
+import com.woolta.blog.domain.vo.Writer;
 import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
@@ -68,8 +69,7 @@ public class PostDto {
         private String content;
         private String categoryLabel;
         private LocalDate createdAt;
-        private String author;
-        private int authorNo;
+        private Writer writer;
     }
 
     @AllArgsConstructor

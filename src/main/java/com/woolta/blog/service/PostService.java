@@ -6,6 +6,7 @@ import com.woolta.blog.domain.AuthToken;
 import com.woolta.blog.domain.Board;
 import com.woolta.blog.domain.BoardCategory;
 import com.woolta.blog.domain.User;
+import com.woolta.blog.domain.vo.Writer;
 import com.woolta.blog.exception.InvalidAuthorUserException;
 import com.woolta.blog.exception.NotFoundException;
 import com.woolta.blog.exception.login.UserNotFoundException;
@@ -45,10 +46,9 @@ public class PostService {
 
         return PostDto.PostRes.builder()
                 .postNo(board.getId())
-                .author(board.getUser().getNickName())
+                .writer(new Writer(board.getUser().getNo(), board.getUser().getNickName(), board.getUser().getImageUrl()))
                 .content(board.getContents())
                 .title(board.getTitle())
-                .authorNo(board.getUser().getNo())
                 .categoryLabel(board.getCategory().getCategoryName())
                 .createdAt(board.getCreatedAt().toLocalDate())
                 .build();
