@@ -69,6 +69,7 @@ public class PostDto {
         private String categoryLabel;
         private LocalDate createdAt;
         private String author;
+        private int authorNo;
     }
 
     @AllArgsConstructor

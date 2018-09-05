@@ -48,6 +48,7 @@ public class PostService {
                 .author(board.getUser().getNickName())
                 .content(board.getContents())
                 .title(board.getTitle())
+                .authorNo(board.getUser().getNo())
                 .categoryLabel(board.getCategory().getCategoryName())
                 .createdAt(board.getCreatedAt().toLocalDate())
                 .build();
