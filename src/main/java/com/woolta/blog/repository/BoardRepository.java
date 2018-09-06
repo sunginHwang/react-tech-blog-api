@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface BoardRepository extends CrudRepository<Board, Integer>{
     Optional<List<Board>> findBycategoryNo(Integer categoryNo);
+
+    Optional<List<Board>> findTop20ByOrderByCreatedAtDesc();
 }

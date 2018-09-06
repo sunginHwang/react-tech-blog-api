@@ -70,10 +70,35 @@ public class PostService {
                             .author(board.getUser().getNickName())
                             .title(board.getTitle())
                             .categoryLabel(board.getCategory().getCategoryName())
+                            .categoryNo(board.getCategory().getNo())
                             .subDescription(board.getSubDescription())
                             .createdAt(board.getCreatedAt().toLocalDate())
                             .build()
             )
+        );
+
+        return postResList;
+    }
+
+    public List<PostDto.PostsRes> getRecentPosts() {
+
+
+        List<Board> boards = boardRepository.findTop20ByOrderByCreatedAtDesc().orElseThrow(RuntimeException::new);
+
+        List<PostDto.PostsRes> postResList = new LinkedList<>();
+
+        boards.forEach(board ->
+                postResList.add(
+                        PostDto.PostsRes.builder()
+                                .postNo(board.getId())
+                                .author(board.getUser().getNickName())
+                                .title(board.getTitle())
+                                .categoryLabel(board.getCategory().getCategoryName())
+                                .categoryNo(board.getCategory().getNo())
+                                .subDescription(board.getSubDescription())
+                                .createdAt(board.getCreatedAt().toLocalDate())
+                                .build()
+                )
         );
 
         return postResList;
