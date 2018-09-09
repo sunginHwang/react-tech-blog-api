@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @Component
 public class ImageUtil {
 
-    private final String uploadPath = "/Users/hwangseong-in/dev/upload/";
+    private final String uploadPath = "/home/blog/post/upload/";
     private final String url = "";
 
     public UploadFileResponse uploadImage(MultipartFile file) {
