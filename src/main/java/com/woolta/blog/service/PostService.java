@@ -119,7 +119,7 @@ public class PostService {
         board = Board.builder()
                 .title(req.getTitle())
                 .contents(req.getContents())
-                .subDescription(req.getContents().substring(0,5)+"간략 설명")
+                .subDescription(makePostSubDescription(req.getContents()))
                 .user(user)
                 .category(boardCategory)
                 .build();
@@ -158,6 +158,28 @@ public class PostService {
         }
 
         boardRepository.delete(board);
+    }
+
+    private String makePostSubDescription(String content){
+
+        String urlReg = "(http|https|ftp|telnet|news|mms)?://(\\w*:\\w*@)?[-\\w.]+(:\\d+)?(/([\\w/_.]*(\\?\\S+)?)?)?";
+        String specialCharReg = "[-+.^:#,*!()!`/]";
+        String htmlReg = "<(/)?([a-zA-Z]*)(\\\\s[a-zA-Z]*=[^>]*)?(\\\\s)*(/)?>";
+
+        String subContentReg = urlReg.concat("|").concat(specialCharReg).concat("|").concat(htmlReg);
+
+        String subContent = content
+                .replaceAll(subContentReg,"")
+                .replace("[","")
+                .replace("]","");
+
+        if(subContent.length() > 50){
+            return subContent.substring(0,50);
+        }else{
+            return subContent;
+        }
+
+
     }
 
 
