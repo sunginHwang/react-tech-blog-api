@@ -170,13 +170,14 @@ public class PostService {
 
         String subContent = content
                 .replaceAll(subContentReg,"")
+                .replaceAll("\n","")
                 .replace("[","")
                 .replace("]","");
 
-        if(subContent.length() > 50){
-            return subContent.substring(0,50);
+        if(subContent.length() > 70){
+            return subContent.substring(0,70)+"...";
         }else{
-            return subContent;
+            return subContent+"...";
         }
 
 
