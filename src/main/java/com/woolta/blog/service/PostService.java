@@ -61,23 +61,7 @@ public class PostService {
 
         List<Board> boards = boardRepository.findBycategoryNo(categoryNo).orElseThrow(RuntimeException::new);
 
-        List<PostDto.PostsRes> postResList = new LinkedList<>();
-
-        boards.forEach(board ->
-            postResList.add(
-                    PostDto.PostsRes.builder()
-                            .postNo(board.getId())
-                            .author(board.getUser().getNickName())
-                            .title(board.getTitle())
-                            .categoryLabel(board.getCategory().getCategoryName())
-                            .categoryNo(board.getCategory().getNo())
-                            .subDescription(board.getSubDescription())
-                            .createdAt(board.getCreatedAt().toLocalDate())
-                            .build()
-            )
-        );
-
-        return postResList;
+        return convertPostsRes(boards);
     }
 
     public List<PostDto.PostsRes> getRecentPosts() {
@@ -85,28 +69,33 @@ public class PostService {
 
         List<Board> boards = boardRepository.findTop20ByOrderByCreatedAtDesc().orElseThrow(RuntimeException::new);
 
-        List<PostDto.PostsRes> postResList = new LinkedList<>();
+        return convertPostsRes(boards);
+    }
 
+    public List<PostDto.PostRes> getAllPosts() {
+        List<Board> boards = (List<Board>) boardRepository.findAll();
+
+        List<PostDto.PostRes> PostResList = new LinkedList<>();
         boards.forEach(board ->
-                postResList.add(
-                        PostDto.PostsRes.builder()
+                PostResList.add(
+                        PostDto.PostRes.builder()
                                 .postNo(board.getId())
-                                .author(board.getUser().getNickName())
                                 .title(board.getTitle())
                                 .categoryLabel(board.getCategory().getCategoryName())
-                                .categoryNo(board.getCategory().getNo())
-                                .subDescription(board.getSubDescription())
+                                .content(this.removeMarkupLanguage(board.getContents()))
                                 .createdAt(board.getCreatedAt().toLocalDate())
+                                .writer(new Writer(board.getUser().getNo(), board.getUser().getNickName(), board.getUser().getImageUrl()))
                                 .build()
                 )
         );
 
-        return postResList;
+        return PostResList;
+
     }
 
     public PostDto.UpsertRes upsertPost(PostDto.UpsertReq req) {
 
-        log.info("upsert Start post :{}",new Gson().toJson(req));
+        log.info("upsert Start post :{}", new Gson().toJson(req));
 
         BoardCategory boardCategory = boardCategoryRepository.findById(req.getCategoryNo())
                 .orElseThrow(() -> new NotFoundException("category is not found  categoryNo : " + req.getCategoryNo()));
@@ -128,16 +117,16 @@ public class PostService {
             Optional<Board> originBoard = boardRepository.findById(req.getId());
             originBoard.ifPresent(b -> board.setId(b.getId()));
 
-            if(!board.getUser().getUserId().equals(user.getUserId())){
+            if (!board.getUser().getUserId().equals(user.getUserId())) {
                 throw new InvalidAuthorUserException("board author is not match");
             }
         }
 
-        Board upsertedPost = boardRepository.save(board);
+        Board savedPost = boardRepository.save(board);
 
         return PostDto.UpsertRes.builder()
-                .postNo(upsertedPost.getId())
-                .categoryNo(upsertedPost.getCategory().getNo())
+                .postNo(savedPost.getId())
+                .categoryNo(savedPost.getCategory().getNo())
                 .build();
 
     }
@@ -153,14 +142,44 @@ public class PostService {
 
         User user = userRepository.findByUserId(authInfo.getUserId()).orElseThrow(UserNotFoundException::new);
 
-        if(!board.getUser().getUserId().equals(user.getUserId())){
+        if (!board.getUser().getUserId().equals(user.getUserId())) {
             throw new InvalidAuthorUserException("board author is not match");
         }
 
         boardRepository.delete(board);
     }
 
-    private String makePostSubDescription(String content){
+    private List<PostDto.PostsRes> convertPostsRes(List<Board> boards) {
+        List<PostDto.PostsRes> postsRes = new LinkedList<>();
+
+        boards.forEach(board ->
+                postsRes.add(
+                        PostDto.PostsRes.builder()
+                                .postNo(board.getId())
+                                .author(board.getUser().getNickName())
+                                .title(board.getTitle())
+                                .categoryLabel(board.getCategory().getCategoryName())
+                                .categoryNo(board.getCategory().getNo())
+                                .subDescription(board.getSubDescription())
+                                .createdAt(board.getCreatedAt().toLocalDate())
+                                .build()
+                )
+        );
+
+        return postsRes;
+    }
+
+    private String makePostSubDescription(String content) {
+
+        String subContent = this.removeMarkupLanguage(content);
+        if (subContent.length() > 100) {
+            return subContent.substring(0, 100) + "...";
+        } else {
+            return subContent + "...";
+        }
+    }
+
+    private String removeMarkupLanguage(String markupContent) {
 
         String urlReg = "(http|https|ftp|telnet|news|mms)?://(\\w*:\\w*@)?[-\\w.]+(:\\d+)?(/([\\w/_.]*(\\?\\S+)?)?)?";
         String specialCharReg = "[-+.^:#,*!()!`/]";
@@ -168,18 +187,11 @@ public class PostService {
 
         String subContentReg = urlReg.concat("|").concat(specialCharReg).concat("|").concat(htmlReg);
 
-        String subContent = content
-                .replaceAll(subContentReg,"")
-                .replaceAll("\n","")
-                .replace("[","")
-                .replace("]","");
-
-        if(subContent.length() > 70){
-            return subContent.substring(0,70)+"...";
-        }else{
-            return subContent+"...";
-        }
-
+        return markupContent
+                .replaceAll(subContentReg, "")
+                .replaceAll("\n", "")
+                .replace("[", "")
+                .replace("]", "");
 
     }
 

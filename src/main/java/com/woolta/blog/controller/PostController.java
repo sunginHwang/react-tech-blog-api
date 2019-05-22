@@ -65,6 +65,12 @@ public class PostController {
         return new Response<>(ResponseCode.SUCCESS, postRes);
     }
 
+    @GetMapping("/categories/posts/all")
+    public Response<List<PostDto.PostRes>> getAllPosts() {
+        List<PostDto.PostRes> postRes = postService.getAllPosts();
+        return new Response<>(ResponseCode.SUCCESS, postRes);
+    }
+
     @GetMapping("/categories/{categoryNo:[\\d]+}/posts/{postNo:[\\d]+}")
     public Response<PostDto.PostRes> getPost(@PathVariable Integer categoryNo,
                                              @PathVariable Integer postNo) {
