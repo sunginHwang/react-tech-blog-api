@@ -50,6 +50,7 @@ public class PostService {
                 .content(board.getContents())
                 .title(board.getTitle())
                 .categoryLabel(board.getCategory().getCategoryName())
+                .categoryNo(board.getCategory().getNo())
                 .createdAt(board.getCreatedAt().toLocalDate())
                 .build();
     }
@@ -82,6 +83,7 @@ public class PostService {
                                 .postNo(board.getId())
                                 .title(board.getTitle())
                                 .categoryLabel(board.getCategory().getCategoryName())
+                                .categoryNo(board.getCategory().getNo())
                                 .content(this.removeMarkupLanguage(board.getContents()))
                                 .createdAt(board.getCreatedAt().toLocalDate())
                                 .writer(new Writer(board.getUser().getNo(), board.getUser().getNickName(), board.getUser().getImageUrl()))

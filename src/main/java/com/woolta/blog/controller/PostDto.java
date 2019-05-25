@@ -69,6 +69,7 @@ public class PostDto {
         private String title;
         private String content;
         private String categoryLabel;
+        private Integer categoryNo;
         private LocalDate createdAt;
         private Writer writer;
     }
