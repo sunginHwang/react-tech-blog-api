@@ -24,6 +24,7 @@ public class Board {
     private String title;
     private String contents;
     private String subDescription;
+    private Integer views;
 
     @OneToOne
     @JoinColumn(name = "user_no")
