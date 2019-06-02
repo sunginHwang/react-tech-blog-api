@@ -5,6 +5,7 @@ import com.woolta.blog.controller.PostDto;
 import com.woolta.blog.domain.Board;
 import com.woolta.blog.repository.BoardRepository;
 import com.woolta.blog.service.PostService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,84 +32,126 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class BlogApplicationTests {
 
-	@Autowired
-	private PostService postService;
+    @Autowired
+    private PostService postService;
 
-	@Autowired
-	private BoardRepository boardRepository;
-
-
-	@Autowired
-	private WebApplicationContext context;
-
-	private MockMvc mvc;
-	private HttpHeaders headers;
+    @Autowired
+    private BoardRepository boardRepository;
 
 
-	@Before
-	public void setup() {
-		mvc = MockMvcBuilders
-				.webAppContextSetup(context)
-				.build();
+    @Autowired
+    private WebApplicationContext context;
 
-		String tokenId =  "";
-		headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		headers.set("Authorization", tokenId);
-	}
-
-	@Test
-	public void Post스플릿테스트() {
-
-		PostDto.PostRes post = postService.findPostByNo(7,115);
-
-		String urlReg = "(http|https|ftp|telnet|news|mms)?://(\\w*:\\w*@)?[-\\w.]+(:\\d+)?(/([\\w/_.]*(\\?\\S+)?)?)?";
-		String specialCharReg = "[-+.^:#,*!()!`/]";
-		String htmlReg = "<(/)?([a-zA-Z]*)(\\\\s[a-zA-Z]*=[^>]*)?(\\\\s)*(/)?>";
-
-		String subContentReg = urlReg.concat("|").concat(specialCharReg).concat("|").concat(htmlReg);
-
-		String subContent = post.getContent()
-				.replaceAll(subContentReg,"")
-				.replaceAll("\n","")
-				.replace("[","")
-				.replace("]","");
+    private MockMvc mvc;
+    private HttpHeaders headers;
 
 
+    @Before
+    public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .build();
+
+        String tokenId = "eyJ0eXAiOiJKV1QiLCJyZWdEYXRlIjoxNTM2NTg4NzYzNzE3LCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdWJLZXkiLCJhdXRoS2V5Ijp7Im5vIjoxLCJ1c2VySWQiOiJnb21tcG8iLCJpbWFnZVVybCI6Imh0dHBzOi8vaW1hZ2Uud29vbHRhLmNvbS9hZGRlYmM3M2JiNjE4YTM1YWRmNTI5MjgzY2Y3OGNlNy5wbmcifX0.gqKE606IldrVAI67d2p8IfSJPw9fMwLPXlxXrAeQXcQ12";
+        headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        headers.set("Authorization", tokenId);
+    }
+
+    @Test
+    public void Post스플릿테스트() {
+
+        PostDto.PostRes post = postService.readPost(7, 115);
+
+        String urlReg = "(http|https|ftp|telnet|news|mms)?://(\\w*:\\w*@)?[-\\w.]+(:\\d+)?(/([\\w/_.]*(\\?\\S+)?)?)?";
+        String specialCharReg = "[-+.^:#,*!()!`/]";
+        String htmlReg = "<(/)?([a-zA-Z]*)(\\\\s[a-zA-Z]*=[^>]*)?(\\\\s)*(/)?>";
+
+        String subContentReg = urlReg.concat("|").concat(specialCharReg).concat("|").concat(htmlReg);
+
+        String subContent = post.getContent()
+                .replaceAll(subContentReg, "")
+                .replaceAll("\n", "")
+                .replace("[", "")
+                .replace("]", "");
 
 
-		System.out.println(subContent.substring(0,200));
-	}
+        System.out.println(subContent.substring(0, 200));
+    }
 
-	@Test
-	public void Post배치테스트() throws Exception{
+    @Test
+    public void Post조회수테스트() {
 
-		List<Board> boards = (List<Board>) boardRepository.findAll();
+        int categoryNo = 7;
+        int boardNo = 115;
 
-		boards.forEach(board -> {
+        Board prevBoard = postService.getBoard(categoryNo, boardNo);
+        int prevViews = prevBoard.getViews();
 
-			PostDto.UpsertReq req = new PostDto.UpsertReq();
-			req.setCategoryNo(board.getCategory().getNo());
-			req.setContents(board.getContents());
-			req.setId(board.getId());
-			req.setTitle(board.getTitle());
+        postService.readPost(categoryNo, boardNo);
+
+        Board nextBoard = postService.getBoard(categoryNo, boardNo);
+        int nextViews = nextBoard.getViews();
+
+        Assert.assertEquals(prevViews + 1, nextViews);
+
+    }
+
+    @Test
+    public void Post관리자조회수테스트() {
+
+        int categoryNo = 7;
+        int boardNo = 115;
+
+        Board prevBoard = postService.getBoard(categoryNo, boardNo);
+        int prevViews = prevBoard.getViews();
+
+        try {
+            mvc.perform(
+                    get("/post/categories/" + categoryNo + "/posts/" + boardNo)
+                            .headers(headers)
+            )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Board nextBoard = postService.getBoard(categoryNo, boardNo);
+        int nextViews = nextBoard.getViews();
+
+        Assert.assertEquals(prevViews+1, nextViews);
+
+    }
+
+    @Test
+    public void Post배치테스트() throws Exception {
+
+        List<Board> boards = (List<Board>) boardRepository.findAll();
+
+        boards.forEach(board -> {
+
+            PostDto.UpsertReq req = new PostDto.UpsertReq();
+            req.setCategoryNo(board.getCategory().getNo());
+            req.setContents(board.getContents());
+            req.setId(board.getId());
+            req.setTitle(board.getTitle());
 
 
-			try {
-				mvc.perform(
+            try {
+                mvc.perform(
                         post("/post")
                                 .headers(headers)
                                 .content(new Gson().toJson(req))
                 )
                         .andDo(print())
                         .andExpect(status().isOk());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
-	}
-
+    }
 
 
 }

@@ -30,9 +30,40 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final BoardCategoryRepository boardCategoryRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    public PostDto.PostRes findPostByNo(Integer categoryNo, Integer boardNo) {
+
+    public PostDto.PostRes readPost(Integer categoryNo, Integer boardNo) {
+
+        Board board = getBoard(categoryNo, boardNo);
+        increasePostViews(board);
+        return PostDto.PostRes.builder()
+                .postNo(board.getId())
+                .writer(new Writer(board.getUser().getNo(), board.getUser().getNickName(), board.getUser().getImageUrl()))
+                .content(board.getContents())
+                .title(board.getTitle())
+                .categoryLabel(board.getCategory().getCategoryName())
+                .categoryNo(board.getCategory().getNo())
+                .createdAt(board.getCreatedAt().toLocalDate())
+                .build();
+    }
+
+    private void increasePostViews(Board board) {
+
+        if (board == null) {
+            return;
+        }
+
+        if (!userService.isAdmin()) {
+            board.setViews(board.getViews() + 1);
+            boardRepository.save(board);
+        }
+
+    }
+
+
+    public Board getBoard(Integer categoryNo, Integer boardNo) {
 
         BoardCategory boardCategory = boardCategoryRepository.findById(categoryNo)
                 .orElseThrow(() -> new NotFoundException("category is not found  categoryNo : " + categoryNo));
@@ -44,15 +75,7 @@ public class PostService {
                     "this category is not found post categoryNo : " + categoryNo + " postNo:" + boardNo);
         }
 
-        return PostDto.PostRes.builder()
-                .postNo(board.getId())
-                .writer(new Writer(board.getUser().getNo(), board.getUser().getNickName(), board.getUser().getImageUrl()))
-                .content(board.getContents())
-                .title(board.getTitle())
-                .categoryLabel(board.getCategory().getCategoryName())
-                .categoryNo(board.getCategory().getNo())
-                .createdAt(board.getCreatedAt().toLocalDate())
-                .build();
+        return board;
     }
 
     public List<PostDto.PostsRes> findPostByCategoryNo(Integer categoryNo) {
@@ -102,12 +125,9 @@ public class PostService {
         BoardCategory boardCategory = boardCategoryRepository.findById(req.getCategoryNo())
                 .orElseThrow(() -> new NotFoundException("category is not found  categoryNo : " + req.getCategoryNo()));
 
-        AuthToken authInfo = jwtUtil.getAuthInfo();
+        User user = userService.getUser().orElseThrow(UserNotFoundException::new);
 
-        User user = userRepository.findByUserId(authInfo.getUserId()).orElseThrow(UserNotFoundException::new);
-
-        Board board;
-        board = Board.builder()
+        Board board = Board.builder()
                 .title(req.getTitle())
                 .contents(req.getContents())
                 .subDescription(makePostSubDescription(req.getContents()))

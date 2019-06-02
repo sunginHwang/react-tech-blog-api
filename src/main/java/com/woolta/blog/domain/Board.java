@@ -24,6 +24,8 @@ public class Board {
     private String title;
     private String contents;
     private String subDescription;
+
+    @Setter
     private Integer views;
 
     @OneToOne

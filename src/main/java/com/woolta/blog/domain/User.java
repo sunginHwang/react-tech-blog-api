@@ -27,6 +27,7 @@ public class User {
     private String email;
     private String password;
     private String imageUrl;
+    private Boolean isAdmin;
 
     @Column(updatable = false)
     private ZonedDateTime createdAt;
