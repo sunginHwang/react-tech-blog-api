@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @TestPropertySource(properties = {"projectProfile=live"})
 @RunWith(SpringRunner.class)
+@Ignore
 @SpringBootTest
 public class BlogApplicationTests {
 
@@ -150,6 +151,34 @@ public class BlogApplicationTests {
                 e.printStackTrace();
             }
         });
+
+    }
+
+    @Test
+    public void Post_upsert_테스트() throws Exception {
+
+        int categoryNo = 9;
+        int postId = 136;
+        String contents = "1212121";
+        String title = "12121212";
+
+        PostDto.UpsertReq req = new PostDto.UpsertReq();
+        req.setCategoryNo(categoryNo);
+        req.setContents(contents);
+        req.setId(postId);
+        req.setTitle(title);
+
+        try {
+            mvc.perform(
+                    post("/post")
+                            .headers(headers)
+                            .content(new Gson().toJson(req))
+            )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
