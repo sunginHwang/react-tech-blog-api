@@ -133,11 +133,16 @@ public class PostService {
                 .subDescription(makePostSubDescription(req.getContents()))
                 .user(user)
                 .category(boardCategory)
+                .views(0)
                 .build();
 
         if (req.getId() != 0) {
             Optional<Board> originBoard = boardRepository.findById(req.getId());
-            originBoard.ifPresent(b -> board.setId(b.getId()));
+
+            originBoard.ifPresent(b -> {
+                board.setId(b.getId());
+                board.setViews(b.getViews());
+            });
 
             if (!board.getUser().getUserId().equals(user.getUserId())) {
                 throw new InvalidAuthorUserException("board author is not match");
