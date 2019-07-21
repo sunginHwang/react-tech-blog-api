@@ -66,11 +66,9 @@ public class ImageUtil {
 
     private boolean isImageFile(String ext) {
 
-        String allowPattern = "(png|jpg|bmp|jpeg)";
-        Pattern p = Pattern.compile(allowPattern);
-        Matcher m = p.matcher(ext);
-
-        return m.matches();
+        String allowImageExt = "(png|jpg|bmp|gif|jpeg)";
+        Pattern p = Pattern.compile(allowImageExt);
+        return  p.matcher(ext).matches();
     }
 
 }
