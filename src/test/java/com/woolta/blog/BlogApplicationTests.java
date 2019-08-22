@@ -3,7 +3,9 @@ package com.woolta.blog;
 import com.google.gson.Gson;
 import com.woolta.blog.controller.PostDto;
 import com.woolta.blog.domain.Board;
+import com.woolta.blog.domain.WebPushSubscription;
 import com.woolta.blog.repository.BoardRepository;
+import com.woolta.blog.repository.WebPushSubscriptionRepository;
 import com.woolta.blog.service.PostService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,6 +40,9 @@ public class BlogApplicationTests {
 
     @Autowired
     private BoardRepository boardRepository;
+
+    @Autowired
+    private WebPushSubscriptionRepository webPushSubscriptionRepository;
 
 
     @Autowired
@@ -78,6 +83,13 @@ public class BlogApplicationTests {
 
 
         System.out.println(subContent.substring(0, 200));
+    }
+
+    @Test
+    public void WebPush조회테스트(){
+        List<WebPushSubscription> webPushSubscription = webPushSubscriptionRepository.findAll();
+
+        webPushSubscription.stream().forEach(webPushSubscription1 -> System.out.println(webPushSubscription1.getAuth()));
     }
 
     @Test

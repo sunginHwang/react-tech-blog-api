@@ -1,16 +1,9 @@
 package com.woolta.blog.controller;
 
+import com.woolta.blog.domain.PushNotification;
+import com.woolta.blog.service.WebPushService;
 import lombok.RequiredArgsConstructor;
-import nl.martijndwars.webpush.Notification;
-import nl.martijndwars.webpush.PushService;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.jose4j.lang.JoseException;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.Security;
-import java.util.concurrent.ExecutionException;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -18,21 +11,22 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/push")
 public class PushController {
 
+    private final WebPushService webPushService;
+
 
     @GetMapping("/notification")
-    public void push(@RequestParam String key, @RequestParam String auth, @RequestParam String endPoint) throws GeneralSecurityException, InterruptedException, JoseException, ExecutionException, IOException {
+    public void pushAll() {
+        PushNotification pushNotification = PushNotification.builder()
+                .title("woolta 기술 블로그")
+                .content("새로운 포스트 출시")
+                .url("https://blog.woolta.com/categories/10/posts/148")
+                .build();
+        webPushService.allSendPush(pushNotification);
+    }
 
+    @PostMapping("/subscription")
+    public void subscription(@RequestBody PushDto.SaveReq saveReq) {
 
-        // Add BouncyCastle as an algorithm provider
-        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
-            Security.addProvider(new BouncyCastleProvider());
-        }
-
-        PushService pushService = new PushService();
-
-        pushService.setPublicKey("");
-        pushService.setPrivateKey("");
-        Notification notification = new Notification(endPoint, key, auth, "1212121");
-        pushService.send(notification);
+        webPushService.addPushSubscription(saveReq);
     }
 }

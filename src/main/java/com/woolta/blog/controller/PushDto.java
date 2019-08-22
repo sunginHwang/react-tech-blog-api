@@ -11,12 +11,13 @@ public class PushDto {
     @NoArgsConstructor
     @Getter
     @Setter
-    public static class pushReq {
+    public static class SaveReq {
+
         @NotNull
         private String key;
         @NotNull
         private String auth;
         @NotNull
-        private String payload;
+        private String endPoint;
     }
 }
