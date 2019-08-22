@@ -2,10 +2,7 @@ package com.woolta.blog.service;
 
 import com.google.gson.Gson;
 import com.woolta.blog.controller.PostDto;
-import com.woolta.blog.domain.AuthToken;
-import com.woolta.blog.domain.Board;
-import com.woolta.blog.domain.BoardCategory;
-import com.woolta.blog.domain.User;
+import com.woolta.blog.domain.*;
 import com.woolta.blog.domain.vo.Writer;
 import com.woolta.blog.exception.InvalidAuthorUserException;
 import com.woolta.blog.exception.NotFoundException;
@@ -31,6 +28,7 @@ public class PostService {
     private final BoardCategoryRepository boardCategoryRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final WebPushService webPushService;
     private final JwtUtil jwtUtil;
 
 
@@ -122,6 +120,8 @@ public class PostService {
 
         log.info("upsert Start post :{}", new Gson().toJson(req));
 
+        boolean isCreatedPost = false;
+
         BoardCategory boardCategory = boardCategoryRepository.findById(req.getCategoryNo())
                 .orElseThrow(() -> new NotFoundException("category is not found  categoryNo : " + req.getCategoryNo()));
 
@@ -147,15 +147,31 @@ public class PostService {
             if (!board.getUser().getUserId().equals(user.getUserId())) {
                 throw new InvalidAuthorUserException("board author is not match");
             }
+        } else {
+            isCreatedPost = true;
         }
 
         Board savedPost = boardRepository.save(board);
+
+        if (isCreatedPost) {
+            pushNewPost(savedPost);
+        }
 
         return PostDto.UpsertRes.builder()
                 .postNo(savedPost.getId())
                 .categoryNo(savedPost.getCategory().getNo())
                 .build();
 
+    }
+
+    private void pushNewPost(Board board) {
+        PushNotification pushNotification = PushNotification.builder()
+                .title("신규 포스트 알림")
+                .content(board.getTitle())
+                .url("https://blog.woolta.com/categories/" + board.getCategory().getNo() + "/posts/" + board.getId())
+                .build();
+
+        webPushService.allSendPush(pushNotification);
     }
 
     public void removePost(int categoryNo, int postNo) {
