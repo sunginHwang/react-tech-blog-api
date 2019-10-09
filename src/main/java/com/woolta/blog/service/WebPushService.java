@@ -38,7 +38,7 @@ public class WebPushService {
         try {
             pushService.setPublicKey("");
             pushService.setPrivateKey("");
-        } catch (NoSuchProviderException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+        } catch (ArrayIndexOutOfBoundsException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeySpecException e) {
             log.error("pushProvider register fail {}", e);
         }
 
