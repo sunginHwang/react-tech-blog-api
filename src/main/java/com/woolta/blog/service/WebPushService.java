@@ -54,6 +54,34 @@ public class WebPushService {
         });
     }
 
+    public void sendPush(PushNotification pushNotification, WebPushSubscription webPushSubscription) {
+
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
+
+        PushService pushService = new PushService();
+
+        try {
+            pushService.setPublicKey("");
+            pushService.setPrivateKey("");
+        } catch (ArrayIndexOutOfBoundsException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            log.error("pushProvider register fail {}", e);
+        }
+
+
+        try {
+            Notification notification = new Notification(
+                    webPushSubscription.getEndPoint(),
+                    webPushSubscription.getPushKey(),
+                    webPushSubscription.getAuth(),
+                    new Gson().toJson(pushNotification));
+            pushService.send(notification);
+        } catch (Exception e) {
+            log.error("notification fail endPoint:{}, key:{}, auth:{} ", webPushSubscription.getEndPoint(), webPushSubscription.getPushKey(), webPushSubscription.getAuth(), e);
+        }
+    }
+
     public void addPushSubscription(PushDto.SaveReq saveReq) {
         Optional<WebPushSubscription> sameWebPushSubscription = webPushSubscriptionRepository.findByAuthAndPushKey(saveReq.getAuth(), saveReq.getKey());
 
@@ -68,5 +96,20 @@ public class WebPushService {
                 .build();
 
         webPushSubscriptionRepository.save(webPushSubscription);
+
+        PushNotification pushNotification = PushNotification.builder()
+                .title("blog.woolta.com")
+                .content("woolta블로그를 구독해주셔서 감사합니다. :)")
+                .url("https://blog.woolta.com")
+                .build();
+
+        this.sendPush(pushNotification, webPushSubscription);
+
+
+    }
+
+    public void removePushSubscription(String subscriptionAuthKey) {
+        Optional<WebPushSubscription> webPushSubscription = webPushSubscriptionRepository.findByAuth(subscriptionAuthKey);
+        webPushSubscription.ifPresent(w -> webPushSubscriptionRepository.delete(w));
     }
 }

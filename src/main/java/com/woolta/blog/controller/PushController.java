@@ -29,4 +29,9 @@ public class PushController {
 
         webPushService.addPushSubscription(saveReq);
     }
+
+    @DeleteMapping("/subscription")
+    public void unsubscription(@RequestBody PushDto.RemoveReq removeReq) {
+        webPushService.removePushSubscription(removeReq.getKey());
+    }
 }

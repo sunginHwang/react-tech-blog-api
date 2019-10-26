@@ -20,4 +20,13 @@ public class PushDto {
         @NotNull
         private String endPoint;
     }
+
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class RemoveReq {
+
+        @NotNull
+        private String key;
+    }
 }

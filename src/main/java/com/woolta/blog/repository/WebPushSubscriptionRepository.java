@@ -13,4 +13,6 @@ public interface WebPushSubscriptionRepository extends CrudRepository<WebPushSub
     List<WebPushSubscription> findAll();
 
     Optional<WebPushSubscription> findByAuthAndPushKey(String auth, String pushKey);
+
+    Optional<WebPushSubscription> findByAuth(String auth);
 }
