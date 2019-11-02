@@ -3,7 +3,10 @@ package com.woolta.blog.service;
 import com.google.gson.Gson;
 import com.woolta.blog.controller.PushDto;
 import com.woolta.blog.domain.PushNotification;
+import com.woolta.blog.domain.WebPushKey;
 import com.woolta.blog.domain.WebPushSubscription;
+import com.woolta.blog.exception.NotFoundException;
+import com.woolta.blog.repository.WebPushKeyRepository;
 import com.woolta.blog.repository.WebPushSubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,36 +29,27 @@ import java.util.Optional;
 public class WebPushService {
 
     private final WebPushSubscriptionRepository webPushSubscriptionRepository;
+    private final WebPushKeyRepository webPushKeyRepository;
 
     public void allSendPush(PushNotification pushNotification) {
         List<WebPushSubscription> webPushSubscriptions = webPushSubscriptionRepository.findAll();
 
-        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
-            Security.addProvider(new BouncyCastleProvider());
-        }
-
-        PushService pushService = new PushService();
-
-        try {
-            pushService.setPublicKey("");
-            pushService.setPrivateKey("");
-        } catch (ArrayIndexOutOfBoundsException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-            log.error("pushProvider register fail {}", e);
-        }
-
+        List<Notification> notifications = new ArrayList<>();
 
         webPushSubscriptions.stream().forEach(pushSub -> {
             try {
                 Notification notification = new Notification(pushSub.getEndPoint(), pushSub.getPushKey(), pushSub.getAuth(), new Gson().toJson(pushNotification));
-                pushService.send(notification);
+                notifications.add(notification);
             } catch (Exception e) {
                 log.error("notification fail endPoint:{}, key:{}, auth:{} ", pushSub.getEndPoint(), pushSub.getPushKey(), pushSub.getAuth(), e);
             }
 
         });
+
+        sendPush(notifications);
     }
 
-    public void sendPush(PushNotification pushNotification, WebPushSubscription webPushSubscription) {
+    public void sendPush(List<Notification> notifications) {
 
         if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
             Security.addProvider(new BouncyCastleProvider());
@@ -63,24 +58,24 @@ public class WebPushService {
         PushService pushService = new PushService();
 
         try {
-            pushService.setPublicKey("");
-            pushService.setPrivateKey("");
+            WebPushKey webPushKey = webPushKeyRepository.findById(1).orElseThrow(() -> new NotFoundException("not found webPushKey"));
+            pushService.setPublicKey(webPushKey.getPublicKey());
+            pushService.setPrivateKey(webPushKey.getPrivateKey());
         } catch (ArrayIndexOutOfBoundsException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeySpecException e) {
             log.error("pushProvider register fail {}", e);
         }
 
 
-        try {
-            Notification notification = new Notification(
-                    webPushSubscription.getEndPoint(),
-                    webPushSubscription.getPushKey(),
-                    webPushSubscription.getAuth(),
-                    new Gson().toJson(pushNotification));
-            pushService.send(notification);
-        } catch (Exception e) {
-            log.error("notification fail endPoint:{}, key:{}, auth:{} ", webPushSubscription.getEndPoint(), webPushSubscription.getPushKey(), webPushSubscription.getAuth(), e);
-        }
+        notifications.stream().forEach(notification -> {
+            try {
+                pushService.send(notification);
+            } catch (Exception e) {
+                log.error("notification fail payload:{}", notification.getPayload(), e);
+            }
+
+        });
     }
+
 
     public void addPushSubscription(PushDto.SaveReq saveReq) {
         Optional<WebPushSubscription> sameWebPushSubscription = webPushSubscriptionRepository.findByAuthAndPushKey(saveReq.getAuth(), saveReq.getKey());
@@ -103,7 +98,20 @@ public class WebPushService {
                 .url("https://blog.woolta.com")
                 .build();
 
-        this.sendPush(pushNotification, webPushSubscription);
+        List<Notification> notifications = new ArrayList<>();
+
+        try {
+            Notification notification = new Notification(
+                    webPushSubscription.getEndPoint(),
+                    webPushSubscription.getPushKey(),
+                    webPushSubscription.getAuth(),
+                    new Gson().toJson(pushNotification));
+            notifications.add(notification);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            log.error("fail to addPushSubscription converting notification webPushSubscription:{}, pushNotification:{}  ", new Gson().toJson(webPushSubscription), new Gson().toJson(pushNotification), e);
+        }
+
+        this.sendPush(notifications);
 
 
     }
