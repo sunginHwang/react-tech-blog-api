@@ -194,5 +194,16 @@ public class BlogApplicationTests {
 
     }
 
+    @Test
+    public void testPlus() {
+        int a = 1;
+        int b = 2;
+
+        int plus = a + b;
+        Assert.assertEquals(plus, 3);
+
+
+    }
+
 
 }
