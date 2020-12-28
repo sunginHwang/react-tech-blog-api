@@ -13,6 +13,7 @@ import com.woolta.blog.repository.UserRepository;
 import com.woolta.blog.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
@@ -164,7 +165,8 @@ public class PostService {
 
     }
 
-    private void pushNewPost(Board board) {
+    @Async
+    public void pushNewPost(Board board) {
         PushNotification pushNotification = PushNotification.builder()
                 .title("신규 포스트 알림")
                 .content(board.getTitle())

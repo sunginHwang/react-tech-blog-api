@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -16,6 +17,7 @@ import javax.servlet.Filter;
 import java.nio.charset.Charset;
 
 @Configuration
+@EnableAsync
 @RequiredArgsConstructor
 public class webMvcConfig implements WebMvcConfigurer {
 
@@ -48,7 +50,7 @@ public class webMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/*")
                 .allowedOrigins("*")
-                .allowedMethods("POST","GET","PUT","PETCH","DELETE")
+                .allowedMethods("POST","GET","PUT","PATCH","DELETE")
                 .allowCredentials(false)
                 .maxAge(3600);
     }
